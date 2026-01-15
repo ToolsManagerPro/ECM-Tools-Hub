@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Remove & Highlight Duplicate Lines</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      padding: 30px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 0;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 220px;
+      font-family: monospace;
+      font-size: 14px;
+      padding: 10px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      margin-bottom: 12px;
+    }
+
+    button {
+      padding: 10px 25px;
+      font-size: 15px;
+      cursor: pointer;
+      border: none;
+      background: #16a34a;
+      color: white;
+      border-radius: 5px;
+    }
+
+    button:hover {
+      background: #15803d;
+    }
+
+    .actions {
+      text-align: center;
+      margin: 15px 0;
+    }
+
+    .summary {
+      background: #f1f5f9;
+      border-left: 5px solid #dc2626;
+      padding: 12px;
+      margin-top: 15px;
+      font-size: 14px;
+    }
+
+    .highlight {
+      color: #dc2626;
+      font-weight: bold;
+    }
+
+    .dup-box {
+      background: #fff1f2;
+      border: 1px solid #fecaca;
+      padding: 10px;
+      border-radius: 5px;
+      margin-top: 10px;
+      font-family: monospace;
+      font-size: 13px;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Remove & Highlight Duplicate Lines</h1>
+
+  <p><strong>Input List</strong></p>
+  <textarea id="input" placeholder="A
+A
+B
+C
+B
+D
+D
+D"></textarea>
+
+  <div class="actions">
+    <button onclick="deduplicate()">Remove Duplicates</button>
+  </div>
+
+  <p><strong>Unique Result</strong></p>
+  <textarea id="output" readonly></textarea>
+
+  <div id="summary" class="summary" style="display:none;"></div>
+
+  <h3 id="dupTitle" style="display:none;">Duplicated Lines</h3>
+  <div id="duplicates" class="dup-box" style="display:none;"></div>
+</div>
+
+<script>
+function deduplicate() {
+  const inputText = document.getElementById('input').value;
+
+  const lines = inputText
+    .split('\n')
+    .map(v => v.trim())
+    .filter(Boolean);
+
+  const seen = new Set();
+  const duplicatesMap = {};
+  const unique = [];
+
+  lines.forEach(line => {
+    if (seen.has(line)) {
+      duplicatesMap[line] = (duplicatesMap[line] || 1) + 1;
+    } else {
+      seen.add(line);
+      unique.push(line);
+    }
+  });
+
+  document.getElementById('output').value = unique.join('\n');
+
+  const duplicateTotal = Object.values(duplicatesMap)
+    .reduce((a, b) => a + b, 0);
+
+  const summaryHTML = `
+    <strong>Summary:</strong><br>
+    Total lines: <strong>${lines.length}</strong><br>
+    Unique lines: <strong>${unique.length}</strong><br>
+    Duplicated lines removed:
+    <span class="highlight">${duplicateTotal}</span>
+  `;
+
+  const summaryDiv = document.getElementById('summary');
+  summaryDiv.innerHTML = summaryHTML;
+  summaryDiv.style.display = 'block';
+
+  const dupDiv = document.getElementById('duplicates');
+  const dupTitle = document.getElementById('dupTitle');
+
+  if (Object.keys(duplicatesMap).length > 0) {
+    let dupText = '';
+    for (const [value, count] of Object.entries(duplicatesMap)) {
+      dupText += `${value}  →  ${count} time(s)\n`;
+    }
+    dupDiv.textContent = dupText.trim();
+    dupDiv.style.display = 'block';
+    dupTitle.style.display = 'block';
+  } else {
+    dupDiv.style.display = 'none';
+    dupTitle.style.display = 'none';
+  }
+}
+</script>
+
+</body>
+</html>
