@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ECMW Global Packs</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 2200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            font-size: 28px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo i {
+            font-size: 32px;
+            color: #3498db;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 12px 15px 12px 45px;
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            font-size: 16px;
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #7f8c8d;
+        }
+        
+        .filter-controls {
+            display: flex;
+            gap: 15px;
+        }
+        
+        select, button {
+            padding: 12px 15px;
+            border: none;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        button {
+            background: #3498db;
+            color: white;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #2980b9;
+        }
+        
+        .data-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            max-height: 600px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px 10px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 14px;
+        }
+        
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            white-space: nowrap;
+        }
+        
+        th:hover {
+            background: #e8f4fc;
+        }
+        
+        th i {
+            margin-left: 5px;
+            color: #3498db;
+        }
+        
+        tr:hover {
+            background: #f5f9ff;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            gap: 10px;
+        }
+        
+        .pagination button {
+            background: white;
+            color: #3498db;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .pagination button.active {
+            background: #3498db;
+            color: white;
+        }
+        
+        .stats {
+            margin-top: 20px;
+            text-align: center;
+            color: #7f8c8d;
+        }
+        
+        .status-active {
+            color: #2ecc71;
+            font-weight: 600;
+        }
+        
+        .status-inactive {
+            color: #e74c3c;
+            font-weight: 600;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .badge-local {
+            background: #e8f4fc;
+            color: #3498db;
+        }
+        
+        .badge-external {
+            background: #ffe8e8;
+            color: #e74c3c;
+        }
+        
+        .badge-oui {
+            background: #e7f6e9;
+            color: #27ae60;
+        }
+        
+        .badge-non {
+            background: #fbebeb;
+            color: #c0392b;
+        }
+        
+        .day-cell {
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .notes-cell {
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .filter-controls {
+                width: 100%;
+            }
+            
+            select, button {
+                flex: 1;
+            }
+            
+            th, td {
+                padding: 8px 6px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-table"></i>
+                <h1>ECMW Global Packs</h1>
+            </div>
+            <button id="exportBtn"><i class="fas fa-file-export"></i> Export Data</button>
+        </header>
+        
+        <div class="controls">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search across all data...">
+            </div>
+            
+            <div class="filter-controls">
+                <select id="entityFilter">
+                    <option value="">All Entities</option>
+                    <option value="ECM4">ECM4</option>
+                    <option value="ECM7">ECM7</option>
+                    <option value="ECM10">ECM10</option>
+                </select>
+                
+                <select id="statusFilter">
+                    <option value="">All Status</option>
+                    <option value="Repo IPs">Repo IPs</option>
+                    <option value="Verification">Verification</option>
+                    <option value="ADD contact">ADD contact</option>
+                    <option value="Repoting">Repoting</option>
+                    <option value="EMPTY">EMPTY</option>
+                </select>
+                
+                <select id="platformFilter">
+                    <option value="">All Platforms</option>
+                    <option value="ECM_APP">ECM_APP</option>
+                    <option value="iMACROS">iMACROS</option>
+                </select>
+                
+                <button id="resetFilters"><i class="fas fa-redo"></i> Reset</button>
+            </div>
+        </div>
+        
+        <div class="data-container">
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th data-sort="entity">Entity <i class="fas fa-sort"></i></th>
+                            <th data-sort="entityProd">EntityProd <i class="fas fa-sort"></i></th>
+                            <th data-sort="platform">Platform <i class="fas fa-sort"></i></th>
+                            <th data-sort="team">Team <i class="fas fa-sort"></i></th>
+                            <th data-sort="localExterne">Local/Externe <i class="fas fa-sort"></i></th>
+                            <th data-sort="pack">Pack <i class="fas fa-sort"></i></th>
+                            <th data-sort="dataSeeds">DATA Seeds <i class="fas fa-sort"></i></th>
+                            <th data-sort="server">SERVER <i class="fas fa-sort"></i></th>
+                            <th data-sort="disk">Disk <i class="fas fa-sort"></i></th>
+                            <th data-sort="rdps">RDPS: Session <i class="fas fa-sort"></i></th>
+                            <th data-sort="password">Password <i class="fas fa-sort"></i></th>
+                            <th data-sort="interval">iNTERVAL <i class="fas fa-sort"></i></th>
+                            <th data-sort="browser">BROWSER <i class="fas fa-sort"></i></th>
+                            <th data-sort="status">Status <i class="fas fa-sort"></i></th>
+                            <th data-sort="countProfiles">Count Profiles <i class="fas fa-sort"></i></th>
+                            <th data-sort="totalSeedsOk">Total Seeds ok <i class="fas fa-sort"></i></th>
+                            <th data-sort="backup">Backup <i class="fas fa-sort"></i></th>
+                            <th data-sort="notes">Notes <i class="fas fa-sort"></i></th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataBody">
+                        <!-- Data will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="pagination" id="pagination">
+                <!-- Pagination buttons will be added here -->
+            </div>
+        </div>
+        
+        <div class="stats">
+            <p id="statsText">Showing 0 of 0 entries</p>
+        </div>
+    </div>
+
+    <script>
+        // Your Excel data transformed into JavaScript format
+        const sampleData = [
+            { entity: "ECM4", entityProd: "ECM4", platform: "ECM_APP", team: "A", localExterne: "Externe", pack: "Pack1", dataSeeds: "oui", server: "194.163.144.27", disk: "externe", rdps: "repo", password: "LABO@0000", interval: "1-3999", browser: "Chrome", status: "Repo IPs", countProfiles: "3999", totalSeedsOk: "1980", backup: "Non", day1: "1-616", day2: "617-1191", day3: "1192-1694", day4: "1695-2177", day5: "2178-2794", day6: "2795-3394", day7: "3396-6000", dailyConsumption: "321", notes: "" },
+            { entity: "ECM4", entityProd: "ECM4", platform: "ECM_APP", team: "A", localExterne: "Externe", pack: "Pack2", dataSeeds: "oui", server: "185.216.75.117", disk: "externe", rdps: "repo", password: "LABO@0000", interval: "5000-01-01 00:00:00", browser: "Chrome", status: "Repo IPs", countProfiles: "5000", totalSeedsOk: "3808", backup: "Non", day1: "1--647", day2: "649-1280", day3: "1281-1931", day4: "1932-2678", day5: "2679-3403", day6: "3404-4153", day7: "4154-6000", dailyConsumption: "544", notes: "" },
+            { entity: "ECM4", entityProd: "ECM4", platform: "ECM_APP", team: "A", localExterne: "Externe", pack: "Pack3", dataSeeds: "non", server: "66.94.120.85", disk: "externe", rdps: "repo", password: "LABO@0000", interval: "3078-01-01 00:00:00", browser: "Chrome", status: "Repo IPs", countProfiles: "3078", totalSeedsOk: "1555", backup: "Non", day1: "1-416", day2: "417-856", day3: "860-1440", day4: "1442-1852", day5: "1853-2286", day6: "2287-2716", day7: "2717-6000", dailyConsumption: "222", notes: "" },
+            { entity: "ECM4", entityProd: "ECM4", platform: "ECM_APP", team: "A", localExterne: "Externe", pack: "Pack4", dataSeeds: "oui", server: "194163130102", disk: "externe", rdps: "repo", password: "LABO@0000", interval: "3000-01-01 00:00:00", browser: "Chrome", status: "Repo IPs", countProfiles: "3000", totalSeedsOk: "2499", backup: "Non", day1: "1-440", day2: "441-862", day3: "864-1288", day4: "1289-1710", day5: "1711-2132", day6: "2134-2559", day7: "2560-6000", dailyConsumption: "357", notes: "" },
+            { entity: "ECM4", entityProd: "ECM4", platform: "ECM_APP", team: "A", localExterne: "Local", pack: "Pack5", dataSeeds: "non", server: "4", disk: "E", rdps: "ECM4_Gmail_1", password: "Password@1.", interval: "5000-01-01 00:00:00", browser: "Chrome", status: "Verification", countProfiles: "3746", totalSeedsOk: "456", backup: "Non", day1: "1--714", day2: "715–1428", day3: "1429–2142", day4: "2143–2856", day5: "2857–3570", day6: "3571–4284", day7: "4285–5000", dailyConsumption: "65", notes: "" },
+            { entity: "ECM4", entityProd: "ECM4", platform: "ECM_APP", team: "A", localExterne: "Local", pack: "Pack6", dataSeeds: "non", server: "4", disk: "E", rdps: "ECM4_Gmail_2", password: "Password@2.", interval: "5001-10000", browser: "Chrome", status: "Verification", countProfiles: "3791", totalSeedsOk: "546", backup: "Non", day1: "5001–5714", day2: "5715–6428", day3: "6429–7142", day4: "7143–7856", day5: "7857–8570", day6: "8571–9284", day7: "9285–10000", dailyConsumption: "78", notes: "" },
+            { entity: "ECM4", entityProd: "ECM4", platform: "ECM_APP", team: "A", localExterne: "Local", pack: "Pack7", dataSeeds: "non", server: "4", disk: "E", rdps: "ECM4_Gmail_3", password: "Password@3.", interval: "10001-15000", browser: "Chrome", status: "Repo IPs", countProfiles: "3428", totalSeedsOk: "1822", backup: "Non", day1: "10001–10714", day2: "10715–11428", day3: "11429–12142", day4: "12143–12856", day5: "12857–13570", day6: "13571–14284", day7: "14285–15000", dailyConsumption: "260", notes: "" },
+            { entity: "ECM4", entityProd: "ECM4", platform: "ECM_APP", team: "A", localExterne: "Local", pack: "Pack8", dataSeeds: "non", server: "3", disk: "G", rdps: "ECM4_Gmail_1", password: "Password@1.", interval: "15001-20000", browser: "Chrome", status: "Repo IPs", countProfiles: "2560", totalSeedsOk: "658", backup: "Non", day1: "15000-15333", day2: "15339-15854", day3: "15855-16390", day4: "16395-16745", day5: "16747-17541", day6: "17546-18409", day7: "18411-20000", dailyConsumption: "94", notes: "" },
+            { entity: "ECM4", entityProd: "ECM4", platform: "ECM_APP", team: "A", localExterne: "Local", pack: "Pack9", dataSeeds: "non", server: "3", disk: "G", rdps: "ECM4_Gmail_2", password: "Password@2.", interval: "20001-25000", browser: "Chrome", status: "Verification", countProfiles: "3025", totalSeedsOk: "826", backup: "Non", day1: "20001-20966", day2: "20971-21638", day3: "21644-22279", day4: "22280-22835", day5: "22841-23346", day6: "23347-23978", day7: "23979-25000", dailyConsumption: "118", notes: "" },
+            { entity: "ECM4", entityProd: "ECM4", platform: "ECM_APP", team: "A", localExterne: "Local", pack: "Pack10", dataSeeds: "non", server: "4", disk: "F", rdps: "ECM4_Gmail_4", password: "Password@4.", interval: "29618-30391", browser: "Chromium", status: "Repo IPs", countProfiles: "774", totalSeedsOk: "735", backup: "Non", day1: "29618-29729", day2: "29730-29842", day3: "29843-29951", day4: "29952-30062", day5: "30063-30168", day6: "30169-30281", day7: "30282-30391", dailyConsumption: "105", notes: "" },
+            { entity: "ECM4", entityProd: "ECM4", platform: "ECM_APP", team: "A", localExterne: "Local", pack: "Pack11", dataSeeds: "non", server: "7", disk: "H", rdps: "ECM4_Gmail_1", password: "tHp**DHpQK7g", interval: "31152-37181", browser: "webview", status: "Repo IPs", countProfiles: "4251", totalSeedsOk: "4179", backup: "Non", day1: "31152-31801", day2: "32239-31805", day3: "32523-33449", day4: "33450-34626", day5: "34627-35511", day6: "35512-36330", day7: "36331-37181", dailyConsumption: "597", notes: "" },
+            { entity: "ECM4", entityProd: "ECM4", platform: "ECM_APP", team: "A", localExterne: "Local", pack: "Pack12", dataSeeds: "non", server: "7", disk: "F", rdps: "ECM4_Gmail_2", password: "(DC%c(D#V5f*", interval: "37182-39179", browser: "webview", status: "Repo IPs", countProfiles: "552", totalSeedsOk: "532", backup: "Non", day1: "37182-37325", day2: "37329-37429", day3: "37432-37588", day4: "37589-37852", day5: "37853-38057", day6: "38068-38320", day7: "38321-39179", dailyConsumption: "76", notes: "" },
+            { entity: "ECM4", entityProd: "ECM4", platform: "ECM_APP", team: "A", localExterne: "Local", pack: "Pack13", dataSeeds: "non", server: "3", disk: "I", rdps: "ECM4_gmail_5", password: "Password@5.", interval: "40000-42000", browser: "webview", status: "Verification", countProfiles: "1989", totalSeedsOk: "1491", backup: "Non", day1: "40001-40236", day2: "40237-40490", day3: "40491-40752", day4: "40753-40994", day5: "40995-41234", day6: "41235-41491", day7: "41492-42000", dailyConsumption: "213", notes: "" },
+            { entity: "ECM4", entityProd: "ECM4", platform: "iMACROS", team: "A", localExterne: "Externe", pack: "Pack14", dataSeeds: "non", server: "144126130165", disk: "externe", rdps: "repo4", password: "ECM4@6666", interval: "85--1782", browser: "palemoon", status: "Repo IPs", countProfiles: "1711", totalSeedsOk: "1161", backup: "Non", day1: "", day2: "", day3: "", day4: "", day5: "", day6: "", day7: "", dailyConsumption: "166", notes: "" },
+            { entity: "ECM4", entityProd: "ECM4", platform: "iMACROS", team: "A", localExterne: "Externe", pack: "Pack15", dataSeeds: "non", server: "194.163.144.27", disk: "externe", rdps: "repo1", password: "ECM4@6666", interval: "3--13753", browser: "palemoon", status: "ADD contact", countProfiles: "1914", totalSeedsOk: "972", backup: "Non", day1: "", day2: "", day3: "", day4: "", day5: "", day6: "", day7: "", dailyConsumption: "139", notes: "" },
+            // Additional data rows would continue here...
+            // For brevity, I've included a subset of your data
+        ];
+
+        // Global variables
+        let currentData = [...sampleData];
+        let currentSort = { column: null, direction: 'asc' };
+        let currentPage = 1;
+        const rowsPerPage = 10;
+
+        // DOM elements
+        const dataBody = document.getElementById('dataBody');
+        const searchInput = document.getElementById('searchInput');
+        const entityFilter = document.getElementById('entityFilter');
+        const statusFilter = document.getElementById('statusFilter');
+        const platformFilter = document.getElementById('platformFilter');
+        const resetFiltersBtn = document.getElementById('resetFilters');
+        const exportBtn = document.getElementById('exportBtn');
+        const paginationElement = document.getElementById('pagination');
+        const statsText = document.getElementById('statsText');
+
+        // Initialize the application
+        function init() {
+            renderTable();
+            setupEventListeners();
+            updatePagination();
+            updateStats();
+        }
+
+        // Render the table with current data
+        function renderTable() {
+            dataBody.innerHTML = '';
+            
+            // Calculate pagination
+            const startIndex = (currentPage - 1) * rowsPerPage;
+            const endIndex = startIndex + rowsPerPage;
+            const paginatedData = currentData.slice(startIndex, endIndex);
+            
+            if (paginatedData.length === 0) {
+                dataBody.innerHTML = '<tr><td colspan="26" style="text-align: center;">No data found</td></tr>';
+                return;
+            }
+            
+            paginatedData.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.entity}</td>
+                    <td>${item.entityProd}</td>
+                    <td>${item.platform}</td>
+                    <td>${item.team}</td>
+                    <td><span class="badge ${item.localExterne === 'Local' ? 'badge-local' : 'badge-external'}">${item.localExterne}</span></td>
+                    <td>${item.pack}</td>
+                    <td><span class="badge ${item.dataSeeds === 'oui' ? 'badge-oui' : 'badge-non'}">${item.dataSeeds}</span></td>
+                    <td>${item.server}</td>
+                    <td>${item.disk}</td>
+                    <td>${item.rdps}</td>
+                    <td>${item.password}</td>
+                    <td>${item.interval}</td>
+                    <td>${item.browser}</td>
+                    <td>${item.status}</td>
+                    <td>${item.countProfiles}</td>
+                    <td>${item.totalSeedsOk}</td>
+                    <td>${item.backup}</td>
+                    <td class="notes-cell">${item.notes}</td>
+                `;
+                dataBody.appendChild(row);
+            });
+        }
+
+        // Set up event listeners
+        function setupEventListeners() {
+            // Search functionality
+            searchInput.addEventListener('input', () => {
+                filterData();
+                currentPage = 1;
+                renderTable();
+                updatePagination();
+                updateStats();
+            });
+            
+            // Filter functionality
+            entityFilter.addEventListener('change', filterData);
+            statusFilter.addEventListener('change', filterData);
+            platformFilter.addEventListener('change', filterData);
+            
+            // Reset filters
+            resetFiltersBtn.addEventListener('click', resetFilters);
+            
+            // Export button
+            exportBtn.addEventListener('click', () => {
+                alert('In a real application, this would export the data to CSV or Excel format.');
+            });
+            
+            // Sort functionality
+            document.querySelectorAll('th[data-sort]').forEach(header => {
+                header.addEventListener('click', () => {
+                    const column = header.getAttribute('data-sort');
+                    sortData(column);
+                    renderTable();
+                });
+            });
+        }
+
+        // Filter data based on search and filters
+        function filterData() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const entityValue = entityFilter.value;
+            const statusValue = statusFilter.value;
+            const platformValue = platformFilter.value;
+            
+            currentData = sampleData.filter(item => {
+                return (
+                    (item.entity.toLowerCase().includes(searchTerm) ||
+                     item.entityProd.toLowerCase().includes(searchTerm) ||
+                     item.platform.toLowerCase().includes(searchTerm) ||
+                     item.team.toLowerCase().includes(searchTerm) ||
+                     item.pack.toLowerCase().includes(searchTerm) ||
+                     item.status.toLowerCase().includes(searchTerm)) &&
+                    (entityValue === '' || item.entity === entityValue) &&
+                    (statusValue === '' || item.status === statusValue) &&
+                    (platformValue === '' || item.platform === platformValue)
+                );
+            });
+            
+            currentPage = 1;
+            renderTable();
+            updatePagination();
+            updateStats();
+        }
+
+        // Reset all filters
+        function resetFilters() {
+            searchInput.value = '';
+            entityFilter.value = '';
+            statusFilter.value = '';
+            platformFilter.value = '';
+            filterData();
+        }
+
+        // Sort data by column
+        function sortData(column) {
+            if (currentSort.column === column) {
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.column = column;
+                currentSort.direction = 'asc';
+            }
+            
+            currentData.sort((a, b) => {
+                let valueA = a[column];
+                let valueB = b[column];
+                
+                // Handle numeric values
+                if (column === 'countProfiles' || column === 'totalSeedsOk' || column === 'dailyConsumption') {
+                    valueA = parseFloat(valueA) || 0;
+                    valueB = parseFloat(valueB) || 0;
+                }
+                
+                if (typeof valueA === 'string') valueA = valueA.toUpperCase();
+                if (typeof valueB === 'string') valueB = valueB.toUpperCase();
+                
+                if (valueA < valueB) return currentSort.direction === 'asc' ? -1 : 1;
+                if (valueA > valueB) return currentSort.direction === 'asc' ? 1 : -1;
+                return 0;
+            });
+        }
+
+        // Update pagination buttons
+        function updatePagination() {
+            const pageCount = Math.ceil(currentData.length / rowsPerPage);
+            paginationElement.innerHTML = '';
+            
+            if (pageCount <= 1) return;
+            
+            // Previous button
+            const prevButton = document.createElement('button');
+            prevButton.innerHTML = '<i class="fas fa-chevron-left"></i>';
+            prevButton.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderTable();
+                    updatePagination();
+                    updateStats();
+                }
+            });
+            paginationElement.appendChild(prevButton);
+            
+            // Page buttons
+            for (let i = 1; i <= pageCount; i++) {
+                const pageButton = document.createElement('button');
+                pageButton.textContent = i;
+                if (i === currentPage) pageButton.classList.add('active');
+                
+                pageButton.addEventListener('click', () => {
+                    currentPage = i;
+                    renderTable();
+                    updatePagination();
+                    updateStats();
+                });
+                
+                paginationElement.appendChild(pageButton);
+            }
+            
+            // Next button
+            const nextButton = document.createElement('button');
+            nextButton.innerHTML = '<i class="fas fa-chevron-right"></i>';
+            nextButton.addEventListener('click', () => {
+                if (currentPage < pageCount) {
+                    currentPage++;
+                    renderTable();
+                    updatePagination();
+                    updateStats();
+                }
+            });
+            paginationElement.appendChild(nextButton);
+        }
+
+        // Update statistics text
+        function updateStats() {
+            const startIndex = (currentPage - 1) * rowsPerPage + 1;
+            const endIndex = Math.min(currentPage * rowsPerPage, currentData.length);
+            const total = currentData.length;
+            
+            statsText.textContent = `Showing ${startIndex} to ${endIndex} of ${total} entries`;
+        }
+
+        // Initialize the app when the page loads
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
