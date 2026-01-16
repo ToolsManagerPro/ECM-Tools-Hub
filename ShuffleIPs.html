@@ -340,6 +340,43 @@
       border-color: var(--primary);
     }
 
+    .validation-options {
+      background: #f0f9ff;
+      padding: 15px;
+      border-radius: var(--radius);
+      margin: 15px 0;
+      border: 1px solid #bae6fd;
+    }
+
+    .validation-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      font-weight: 600;
+      color: var(--secondary);
+    }
+
+    .checkbox-group {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .checkbox-label input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+
     footer {
       text-align: center;
       margin-top: 40px;
@@ -391,6 +428,11 @@
         width: 100%;
         justify-content: center;
       }
+      
+      .checkbox-group {
+        flex-direction: column;
+        gap: 10px;
+      }
     }
   </style>
 </head>
@@ -399,7 +441,7 @@
 <div class="container">
   <header>
     <h1><i class="fas fa-random"></i> Subnet Round Robin Shuffle</h1>
-    <p class="subtitle">Subnet-aware IP shuffling with intelligent allocation for ECM systems. Randomize IPs while maintaining subnet distribution.</p>
+    <p class="subtitle">Subnet-aware IP shuffling with intelligent allocation for ECM systems. Accepts IP addresses with ports (x.x.x.x:port).</p>
   </header>
 
   <div class="input-section">
@@ -407,18 +449,39 @@
       <i class="fas fa-list-ol"></i>
       <span>Input IP Addresses</span>
     </div>
-    <textarea id="input" placeholder="Enter IP addresses (one per line):
-192.168.1.10
-192.168.2.4
-10.0.0.1
-192.168.1.15
-192.168.2.20
-10.0.0.5"></textarea>
+    <textarea id="input" placeholder="Enter IP addresses (one per line, with optional ports):
+192.168.1.10:92
+192.168.2.4:92
+10.0.0.1:92
+192.168.1.15:92
+192.168.2.20:92
+10.0.0.5:92"></textarea>
     <div style="display: flex; justify-content: space-between; margin-top: 10px; font-size: 0.9rem; color: var(--text-light);">
       <span id="input-count">0 IPs entered</span>
       <button class="action-btn" onclick="clearInput()">
         <i class="fas fa-trash-alt"></i> Clear All
       </button>
+    </div>
+  </div>
+
+  <div class="validation-options">
+    <div class="validation-header">
+      <i class="fas fa-cog"></i>
+      <span>Validation Settings</span>
+    </div>
+    <div class="checkbox-group">
+      <label class="checkbox-label">
+        <input type="checkbox" id="strictValidation" checked>
+        <span>Strict IP validation</span>
+      </label>
+      <label class="checkbox-label">
+        <input type="checkbox" id="allowPorts" checked>
+        <span>Allow ports (x.x.x.x:port)</span>
+      </label>
+      <label class="checkbox-label">
+        <input type="checkbox" id="stripPorts" checked>
+        <span>Strip ports for subnet detection</span>
+      </label>
     </div>
   </div>
 
@@ -575,9 +638,9 @@
   </div>
 
   <footer>
-    <p>Subnet-aware shuffle • User-defined limits • Full statistics • Round-robin allocation</p>
+    <p>Subnet-aware shuffle • User-defined limits • Full statistics • Round-robin allocation • Port support</p>
     <div class="footer-features">
-      <span class="feature-tag">IP Validation</span>
+      <span class="feature-tag">IP+Port Support</span>
       <span class="feature-tag">Subnet Detection</span>
       <span class="feature-tag">Random Distribution</span>
       <span class="feature-tag">Real-time Stats</span>
@@ -598,18 +661,18 @@
 
   // Sample data for testing
   function fillSampleData() {
-    const sampleIPs = `192.168.1.10
-192.168.1.15
-192.168.1.20
-192.168.2.4
-192.168.2.8
-192.168.2.12
-10.0.0.1
-10.0.0.5
-10.0.0.9
-172.16.0.1
-172.16.0.10
-172.16.0.20`;
+    const sampleIPs = `192.168.1.10:92
+192.168.1.15:92
+192.168.1.20:92
+192.168.2.4:92
+192.168.2.8:92
+192.168.2.12:92
+10.0.0.1:92
+10.0.0.5:92
+10.0.0.9:92
+172.16.0.1:92
+172.16.0.10:92
+172.16.0.20:92`;
     
     document.getElementById('input').value = sampleIPs;
     document.getElementById('limit-ecm4').value = 4;
@@ -709,24 +772,92 @@
     document.head.appendChild(style);
   }
 
+  // Validate IP address (with optional port)
+  function isValidIPAddress(input) {
+    const strictValidation = document.getElementById('strictValidation').checked;
+    const allowPorts = document.getElementById('allowPorts').checked;
+    
+    // If strict validation is off, accept any non-empty line
+    if (!strictValidation) {
+      return input.trim().length > 0;
+    }
+    
+    // Try to parse IP with optional port
+    const parts = input.split(':');
+    const ipPart = parts[0];
+    const portPart = parts[1];
+    
+    // Validate IP part
+    const ipRegex = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
+    const match = ipPart.match(ipRegex);
+    
+    if (!match) {
+      return false;
+    }
+    
+    // Check each octet
+    for (let i = 1; i <= 4; i++) {
+      const octet = parseInt(match[i]);
+      if (octet < 0 || octet > 255) {
+        return false;
+      }
+    }
+    
+    // Validate port if present
+    if (portPart !== undefined) {
+      if (!allowPorts) {
+        return false;
+      }
+      const port = parseInt(portPart);
+      if (isNaN(port) || port < 1 || port > 65535) {
+        return false;
+      }
+    }
+    
+    return true;
+  }
+
+  // Extract IP without port for subnet detection
+  function extractIPWithoutPort(input) {
+    return input.split(':')[0];
+  }
+
+  // Round robin subnet shuffle with port support
   function roundRobinSubnetFullyRandom(inputText) {
+    const strictValidation = document.getElementById('strictValidation').checked;
+    const stripPorts = document.getElementById('stripPorts').checked;
+    
+    // Filter and validate input
     const input = inputText
       .split('\n')
       .map(v => v.trim())
       .filter(v => {
-        // Basic IP validation
-        const ipRegex = /^(\d{1,3}\.){3}\d{1,3}$/;
-        return ipRegex.test(v) && v.split('.').every(num => parseInt(num) <= 255);
+        if (!strictValidation) {
+          return v.length > 0;
+        }
+        return isValidIPAddress(v);
       });
 
+    // Group by subnet
     const groups = {};
 
-    input.forEach(ip => {
-      const subnet = ip.split('.').slice(0, 3).join('.');
-      if (!groups[subnet]) groups[subnet] = [];
-      groups[subnet].push(ip);
+    input.forEach(entry => {
+      const ipForSubnet = stripPorts ? extractIPWithoutPort(entry) : entry.split(':')[0];
+      const subnetParts = ipForSubnet.split('.');
+      
+      // Ensure we have at least 3 parts for subnet
+      if (subnetParts.length >= 3) {
+        const subnet = subnetParts.slice(0, 3).join('.');
+        if (!groups[subnet]) groups[subnet] = [];
+        groups[subnet].push(entry);
+      } else {
+        // If we don't have a proper subnet, use the whole IP
+        if (!groups[ipForSubnet]) groups[ipForSubnet] = [];
+        groups[ipForSubnet].push(entry);
+      }
     });
 
+    // Shuffle each group
     function shuffle(arr) {
       for (let i = arr.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -736,6 +867,7 @@
 
     Object.values(groups).forEach(shuffle);
 
+    // Round robin distribution
     const subnets = Object.keys(groups);
     const result = [];
 
@@ -754,10 +886,18 @@
   }
 
   function updateStats() {
-    const inputIPs = document.getElementById('input').value
+    const input = document.getElementById('input').value;
+    const strictValidation = document.getElementById('strictValidation').checked;
+    
+    const inputIPs = input
       .split('\n')
       .map(v => v.trim())
-      .filter(Boolean);
+      .filter(v => {
+        if (!strictValidation) {
+          return v.length > 0;
+        }
+        return isValidIPAddress(v);
+      });
     
     const ecm4 = document.getElementById('output-ecm4').value.split('\n').filter(Boolean);
     const ecm7 = document.getElementById('output-ecm7').value.split('\n').filter(Boolean);
@@ -784,8 +924,10 @@
 
     const shuffled = roundRobinSubnetFullyRandom(rawInput);
     
-    if (shuffled.length === 0) {
-      showNotification('No valid IP addresses found!', 'warning');
+    // Only show warning if strict validation is on and no valid IPs found
+    const strictValidation = document.getElementById('strictValidation').checked;
+    if (strictValidation && shuffled.length === 0) {
+      showNotification('No valid IP addresses found! Try disabling strict validation.', 'warning');
       return;
     }
 
@@ -826,7 +968,8 @@
     
     // Show success message
     const totalUsed = ECM4.length + ECM7.length + ECM10.length;
-    showNotification(`Successfully allocated ${totalUsed} IPs across 3 systems!`);
+    const totalInput = rawInput.split('\n').filter(line => line.trim()).length;
+    showNotification(`Successfully allocated ${totalUsed} of ${totalInput} IPs across 3 systems!`);
   }
 
   // Initialize
