@@ -3,111 +3,406 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="ECM Tools Hub - All your internal tools in one place">
   <title>ECM Tools Hub</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    body {
-      font-family: Arial, Helvetica, sans-serif;
-      background: #f5f7fb;
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --secondary: #1f2937;
+      --text: #111827;
+      --text-light: #4b5563;
+      --bg: #f5f7fb;
+      --card-bg: #ffffff;
+      --shadow: rgba(0, 0, 0, 0.08);
+      --border-radius: 10px;
+      --transition: all 0.3s ease;
+    }
+
+    * {
       margin: 0;
       padding: 0;
+      box-sizing: border-box;
     }
-    header {
-      background: #1f2937;
-      color: #fff;
-      padding: 20px;
-      text-align: center;
-    }
-    .container {
-      max-width: 1000px;
-      margin: 40px auto;
-      padding: 0 20px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 20px;
-    }
-    .card {
-      background: #ffffff;
-      border-radius: 10px;
-      padding: 20px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
     }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--secondary) 0%, #374151 100%);
+      color: white;
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      font-weight: 700;
+    }
+
+    header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .main-container {
+      flex: 1;
+      width: 100%;
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+    }
+
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
+      padding: 1.75rem;
+      box-shadow: 0 8px 25px var(--shadow);
+      display: flex;
+      flex-direction: column;
+      transition: var(--transition);
+      border: 1px solid transparent;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+      border-color: var(--primary);
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--primary);
+      opacity: 0;
+      transition: var(--transition);
+    }
+
+    .card:hover::before {
+      opacity: 1;
+    }
+
+    .card-icon {
+      font-size: 1.8rem;
+      color: var(--primary);
+      margin-bottom: 1rem;
+      background: rgba(37, 99, 235, 0.1);
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
     .card h3 {
-      margin-top: 0;
-      color: #111827;
+      margin: 0 0 0.75rem 0;
+      color: var(--text);
+      font-size: 1.3rem;
+      font-weight: 600;
     }
+
     .card p {
-      color: #4b5563;
+      color: var(--text-light);
+      margin-bottom: 1.5rem;
       flex-grow: 1;
+      font-size: 0.95rem;
     }
+
     .card a {
       text-decoration: none;
-      background: #2563eb;
-      color: #fff;
-      padding: 10px 15px;
+      background: var(--primary);
+      color: white;
+      padding: 0.75rem 1.25rem;
       border-radius: 6px;
       text-align: center;
-      font-weight: bold;
-      transition: background 0.2s ease;
+      font-weight: 600;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-size: 0.95rem;
     }
+
     .card a:hover {
-      background: #1d4ed8;
+      background: var(--primary-dark);
+      transform: scale(1.02);
     }
+
+    .card a i {
+      font-size: 0.9rem;
+    }
+
+    .card a.external::after {
+      content: "↗";
+      font-size: 0.85rem;
+      margin-left: 0.25rem;
+    }
+
     footer {
+      background: var(--secondary);
+      color: #d1d5db;
       text-align: center;
-      padding: 20px;
-      color: #6b7280;
-      font-size: 14px;
+      padding: 1.5rem;
+      margin-top: auto;
+      font-size: 0.9rem;
+    }
+
+    footer p {
+      margin: 0;
+    }
+
+    .footer-year {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .search-container {
+      margin-bottom: 2rem;
+      max-width: 500px;
+    }
+
+    .search-box {
+      width: 100%;
+      padding: 0.9rem 1.2rem;
+      border-radius: 50px;
+      border: 2px solid #e5e7eb;
+      font-size: 1rem;
+      transition: var(--transition);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .search-box:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.15);
+    }
+
+    .no-results {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 3rem;
+      color: var(--text-light);
+      font-size: 1.1rem;
+    }
+
+    @media (max-width: 768px) {
+      header h1 {
+        font-size: 2rem;
+      }
+      
+      .main-container {
+        margin: 1.5rem auto;
+        padding: 0 1rem;
+      }
+      
+      .tools-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1.25rem;
+      }
+      
+      .card {
+        padding: 1.5rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      header {
+        padding: 2rem 1rem;
+      }
+      
+      .tools-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
 <body>
 
   <header>
-    <h1>ECM Tools Dashboard</h1>
-    <p>All your internal tools in one place</p>
+    <h1>ECM Tools Hub</h1>
+    <p>All your internal tools in one convenient dashboard</p>
   </header>
 
-  <main class="container">
+  <main class="main-container">
+    <div class="search-container">
+      <label for="toolSearch" class="sr-only">Search tools</label>
+      <input 
+        type="text" 
+        id="toolSearch" 
+        class="search-box" 
+        placeholder="Search tools by name or description..."
+        aria-label="Search tools"
+      >
+    </div>
+
+    <div class="tools-grid" id="toolsContainer">
       
-      
-    <div class="card">
-      <h3>ECMW Global Packs</h3>
-      <p>View, manage and analyze ECMW global Packs.</p>
-      <a href="ECMW_Global_Packs.html" target="_blank">Open Tool</a>
-    </div>
+      <div class="card" data-search="ecmw global packs view manage analyze">
+        <div class="card-icon">
+          <i class="fas fa-globe-americas"></i>
+        </div>
+        <h3>ECMW Global Packs</h3>
+        <p>View, manage and analyze ECMW global Packs with detailed insights and reporting capabilities.</p>
+        <a href="ECMW_Global_Packs.html" target="_blank" aria-label="Open ECMW Global Packs tool">
+          <i class="fas fa-external-link-alt"></i> Open Tool
+        </a>
+      </div>
 
-    <div class="card">
-      <h3>Subnet Round Robin Shuffle</h3>
-      <p>ECM Limits & Stats – Randomize IPs using round robin subnet logic.</p>
-      <a href="https://marwanemajioui2.github.io/ECM-Tools-Hub/ShuffleIPs.html" target="_blank">Open Tool</a>
-    </div>
+      <div class="card" data-search="subnet round robin shuffle ip randomize limits stats">
+        <div class="card-icon">
+          <i class="fas fa-random"></i>
+        </div>
+        <h3>Subnet Round Robin Shuffle</h3>
+        <p>ECM Limits & Stats – Randomize IPs using round robin subnet logic for optimized distribution.</p>
+        <a href="https://marwanemajioui2.github.io/ECM-Tools-Hub/ShuffleIPs.html" target="_blank" aria-label="Open Subnet Round Robin Shuffle tool">
+          <i class="fas fa-external-link-alt"></i> Open Tool
+        </a>
+      </div>
 
-    <div class="card">
-      <h3>Replace TAGs with Emails</h3>
-      <p>Automatically replace predefined TAGs with email addresses.</p>
-      <a href="https://tagsecm.netlify.app/" target="_blank">Open Tool</a>
-    </div>
+      <div class="card" data-search="replace tags with emails automatic predefined">
+        <div class="card-icon">
+          <i class="fas fa-tags"></i>
+        </div>
+        <h3>Replace TAGs with Emails</h3>
+        <p>Automatically replace predefined TAGs with corresponding email addresses in bulk operations.</p>
+        <a href="https://tagsecm.netlify.app/" target="_blank" aria-label="Open Replace TAGs with Emails tool">
+          <i class="fas fa-external-link-alt"></i> Open Tool
+        </a>
+      </div>
 
-    <div class="card">
-      <h3>Compare, Remove & Highlight Duplicates</h3>
-      <p>Compare two inputs, remove duplicates and highlight matches.</p>
-      <a href="https://marwanemajioui2.github.io/ECM-Tools-Hub/Compare_Remove_Hilight" target="_blank">Open Tool</a>
-    </div>
+      <div class="card" data-search="compare remove highlight duplicates two inputs matches">
+        <div class="card-icon">
+          <i class="fas fa-code-compare"></i>
+        </div>
+        <h3>Compare, Remove & Highlight Duplicates</h3>
+        <p>Compare two inputs, remove duplicates and highlight matches with visual indicators.</p>
+        <a href="https://marwanemajioui2.github.io/ECM-Tools-Hub/Compare_Remove_Hilight" target="_blank" aria-label="Open Compare, Remove & Highlight Duplicates tool">
+          <i class="fas fa-external-link-alt"></i> Open Tool
+        </a>
+      </div>
 
-    <div class="card">
-      <h3>Remove & Highlight Duplicate Lines</h3>
-      <p>Detect duplicate lines in large datasets and highlight them.</p>
-      <a href="Compare_Remove_Hilight.html" target="_blank">Open Tool</a>
-    </div>
+      <div class="card" data-search="remove highlight duplicate lines detect large datasets">
+        <div class="card-icon">
+          <i class="fas fa-copy"></i>
+        </div>
+        <h3>Remove & Highlight Duplicate Lines</h3>
+        <p>Detect duplicate lines in large datasets, highlight them, and remove with a single click.</p>
+        <a href="Compare_Remove_Hilight.html" target="_blank" aria-label="Open Remove & Highlight Duplicate Lines tool">
+          <i class="fas fa-external-link-alt"></i> Open Tool
+        </a>
+      </div>
 
+    </div>
   </main>
 
   <footer>
-    © 2026 ECM Internal Tools
+    <p>&copy; <span class="footer-year">2026</span> ECM Internal Tools Hub. All rights reserved.</p>
   </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const searchInput = document.getElementById('toolSearch');
+      const toolCards = document.querySelectorAll('.card');
+      const toolsContainer = document.getElementById('toolsContainer');
+      
+      // Update current year in footer
+      document.querySelector('.footer-year').textContent = new Date().getFullYear();
+      
+      // Search functionality
+      searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase().trim();
+        let hasVisibleCards = false;
+        
+        toolCards.forEach(card => {
+          const searchData = card.getAttribute('data-search').toLowerCase();
+          const cardTitle = card.querySelector('h3').textContent.toLowerCase();
+          const cardDescription = card.querySelector('p').textContent.toLowerCase();
+          
+          const isVisible = searchData.includes(searchTerm) || 
+                           cardTitle.includes(searchTerm) || 
+                           cardDescription.includes(searchTerm);
+          
+          card.style.display = isVisible ? 'flex' : 'none';
+          
+          if (isVisible) {
+            hasVisibleCards = true;
+          }
+        });
+        
+        // Show/hide no results message
+        let noResultsMsg = document.querySelector('.no-results');
+        if (!hasVisibleCards) {
+          if (!noResultsMsg) {
+            noResultsMsg = document.createElement('div');
+            noResultsMsg.className = 'no-results';
+            noResultsMsg.innerHTML = `
+              <i class="fas fa-search" style="font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+              <p>No tools found for "<strong>${searchTerm}</strong>"</p>
+              <p style="font-size: 0.9rem; margin-top: 0.5rem;">Try a different search term</p>
+            `;
+            toolsContainer.appendChild(noResultsMsg);
+          }
+        } else if (noResultsMsg) {
+          noResultsMsg.remove();
+        }
+      });
+      
+      // Add keyboard navigation for accessibility
+      searchInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          this.value = '';
+          this.dispatchEvent(new Event('input'));
+        }
+      });
+      
+      // Focus search input on '/' key press
+      document.addEventListener('keydown', function(e) {
+        if (e.key === '/' && e.target.tagName !== 'INPUT') {
+          e.preventDefault();
+          searchInput.focus();
+        }
+      });
+    });
+  </script>
 
 </body>
 </html>
