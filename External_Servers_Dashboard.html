@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RDP Server Dashboard</title>
+    <title>Pack Management Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -74,10 +74,25 @@
             margin-bottom: 25px;
         }
         
-        .filter-group h3 {
-            color: #34495e;
+        .filter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 10px;
+        }
+        
+        .filter-header h3 {
+            color: #34495e;
             font-size: 1.1rem;
+        }
+        
+        .filter-count {
+            background-color: #3498db;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
         }
         
         .filter-options {
@@ -91,7 +106,16 @@
         .filter-option {
             display: flex;
             align-items: center;
+            justify-content: space-between;
             margin-bottom: 8px;
+            padding: 4px 0;
+        }
+        
+        .filter-option-content {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+            cursor: pointer;
         }
         
         .filter-option input {
@@ -102,8 +126,18 @@
         .filter-option label {
             cursor: pointer;
             font-size: 0.95rem;
-            width: 100%;
-            padding: 4px 0;
+            flex-grow: 1;
+        }
+        
+        .filter-option-packs {
+            background-color: #ecf0f1;
+            color: #7f8c8d;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            min-width: 40px;
+            text-align: center;
         }
         
         .filter-option:hover {
@@ -124,6 +158,9 @@
             cursor: pointer;
             font-weight: 600;
             transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
         #applyFilters {
@@ -216,6 +253,7 @@
             overflow-x: auto;
             border-radius: 8px;
             border: 1px solid #e1e4e8;
+            margin-top: 20px;
         }
         
         table {
@@ -257,6 +295,30 @@
         .count-not-ok {
             color: #e74c3c;
             font-weight: 600;
+        }
+        
+        .count-change {
+            display: inline-flex;
+            align-items: center;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+        
+        .count-change.positive {
+            background-color: rgba(46, 204, 113, 0.1);
+            color: #27ae60;
+        }
+        
+        .count-change.negative {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: #c0392b;
+        }
+        
+        .count-change.neutral {
+            background-color: rgba(149, 165, 166, 0.1);
+            color: #7f8c8d;
         }
         
         .platform-tag {
@@ -338,8 +400,8 @@
 <body>
     <div class="container">
         <header>
-            <h1>RDP Server Dashboard</h1>
-            <p class="subtitle">Filter by Entité and RDPs Externe with total count ok for each RDP</p>
+            <h1>Pack Management Dashboard</h1>
+            <p class="subtitle">Monitor pack status across different RDP servers with detailed comparisons</p>
         </header>
         
         <div class="dashboard">
@@ -347,12 +409,18 @@
                 <h2><i class="fas fa-filter"></i> Filters</h2>
                 
                 <div class="filter-group">
-                    <h3>Entité</h3>
+                    <div class="filter-header">
+                        <h3>Entité</h3>
+                        <span class="filter-count" id="entiteCount">3</span>
+                    </div>
                     <div class="filter-options" id="entiteFilter"></div>
                 </div>
                 
                 <div class="filter-group">
-                    <h3>RDPs Externe</h3>
+                    <div class="filter-header">
+                        <h3>RDP Servers</h3>
+                        <span class="filter-count" id="rdpCount">15</span>
+                    </div>
                     <div class="filter-options" id="rdpFilter"></div>
                 </div>
                 
@@ -364,34 +432,30 @@
             
             <div class="content-panel">
                 <div class="stats-header">
-                    <h2><i class="fas fa-server"></i> Server Status Overview</h2>
-                    <div id="filterStatus">Showing all servers</div>
+                    <h2><i class="fas fa-server"></i> Pack Status Overview</h2>
+                    <div id="filterStatus">Showing all packs</div>
                 </div>
                 
                 <div id="rdpTotalsContainer">
-                    <h3>Total Count OK by RDP</h3>
+                    <h3>Total OK Count by RDP Server</h3>
                     <div class="rdp-totals" id="rdpTotals"></div>
                 </div>
                 
-                <h3>Server Details</h3>
+                <h3>Pack Details with Status Changes</h3>
                 <div class="table-container">
-                    <table id="serverTable">
+                    <table id="packTable">
                         <thead>
                             <tr>
                                 <th>Entité</th>
-                                <th>Packs</th>
-                                <th>RDPs Externe</th>
-                                <th>Disk</th>
+                                <th>Pack</th>
+                                <th>RDP Server</th>
                                 <th>Platform</th>
-                                <th>Old Total</th>
-                                <th>Old OK</th>
-                                <th>Old Not OK</th>
-                                <th>Total</th>
-                                <th>OK</th>
-                                <th>Not OK</th>
+                                <th>Previous Status</th>
+                                <th>Current Status</th>
+                                <th>Change</th>
                             </tr>
                         </thead>
-                        <tbody id="serverTableBody">
+                        <tbody id="packTableBody">
                             <!-- Data will be populated by JavaScript -->
                         </tbody>
                     </table>
@@ -399,12 +463,12 @@
                 
                 <div class="no-data" id="noDataMessage" style="display: none;">
                     <i class="fas fa-database"></i>
-                    <p>No servers match the selected filters</p>
+                    <p>No packs match the selected filters</p>
                 </div>
                 
                 <div class="status-bar">
-                    <span>Total Servers: <span class="highlight" id="totalServers">0</span></span>
-                    <span>Filtered: <span class="highlight" id="filteredServers">0</span></span>
+                    <span>Total Packs: <span class="highlight" id="totalPacks">0</span></span>
+                    <span>Filtered: <span class="highlight" id="filteredPacks">0</span></span>
                     <span>Last Updated: <span class="highlight" id="lastUpdated">Today</span></span>
                 </div>
             </div>
@@ -412,8 +476,8 @@
     </div>
 
     <script>
-        // Server data from the Excel file
-        const serverData = [
+        // Pack data from the Excel file
+        const packData = [
             { entite: "ECM4", packs: "Pack17", rdp: "144.126.129.103", disk: "1.74 TB", platform: "iMACROS", oldTotal: 2332, oldOk: 369, oldNotOk: 1963, total: 2334, ok: 673, notOk: 1661 },
             { entite: "ECM4", packs: "Pack20", rdp: "144.126.129.103", disk: "", platform: "iMACROS", oldTotal: 917, oldOk: 422, oldNotOk: 495, total: 995, ok: 481, notOk: 514 },
             { entite: "ECM4", packs: "Pack14", rdp: "144.126.130.165", disk: "1.17 TB", platform: "iMACROS", oldTotal: 1711, oldOk: 774, oldNotOk: 937, total: 1711, ok: 948, notOk: 763 },
@@ -454,16 +518,18 @@
         // Initialize filter state
         let selectedEntites = [];
         let selectedRdps = [];
-        let filteredData = [...serverData];
+        let filteredData = [...packData];
         
         // DOM elements
         const entiteFilterEl = document.getElementById('entiteFilter');
         const rdpFilterEl = document.getElementById('rdpFilter');
-        const serverTableBody = document.getElementById('serverTableBody');
+        const packTableBody = document.getElementById('packTableBody');
         const rdpTotalsEl = document.getElementById('rdpTotals');
         const filterStatusEl = document.getElementById('filterStatus');
-        const totalServersEl = document.getElementById('totalServers');
-        const filteredServersEl = document.getElementById('filteredServers');
+        const totalPacksEl = document.getElementById('totalPacks');
+        const filteredPacksEl = document.getElementById('filteredPacks');
+        const entiteCountEl = document.getElementById('entiteCount');
+        const rdpCountEl = document.getElementById('rdpCount');
         const noDataMessage = document.getElementById('noDataMessage');
         const applyFiltersBtn = document.getElementById('applyFilters');
         const resetFiltersBtn = document.getElementById('resetFilters');
@@ -490,15 +556,23 @@
             });
         }
         
-        // Populate filter options
+        // Populate filter options with counts
         function populateFilters() {
-            // Get unique entites and rdps
-            const entites = [...new Set(serverData.map(item => item.entite))];
-            const rdps = [...new Set(serverData.map(item => item.rdp))];
+            // Get unique entites and rdps with counts
+            const entiteCounts = {};
+            const rdpCounts = {};
             
-            // Sort them
-            entites.sort();
-            rdps.sort();
+            packData.forEach(pack => {
+                entiteCounts[pack.entite] = (entiteCounts[pack.entite] || 0) + 1;
+                rdpCounts[pack.rdp] = (rdpCounts[pack.rdp] || 0) + 1;
+            });
+            
+            const entites = Object.keys(entiteCounts).sort();
+            const rdps = Object.keys(rdpCounts).sort();
+            
+            // Update filter header counts
+            entiteCountEl.textContent = entites.length;
+            rdpCountEl.textContent = rdps.length;
             
             // Populate entite filter
             entiteFilterEl.innerHTML = '';
@@ -506,8 +580,11 @@
                 const option = document.createElement('div');
                 option.className = 'filter-option';
                 option.innerHTML = `
-                    <input type="checkbox" id="entite-${entite}" value="${entite}">
-                    <label for="entite-${entite}">${entite}</label>
+                    <div class="filter-option-content">
+                        <input type="checkbox" id="entite-${entite}" value="${entite}" checked>
+                        <label for="entite-${entite}">${entite}</label>
+                    </div>
+                    <span class="filter-option-packs">${entiteCounts[entite]}</span>
                 `;
                 entiteFilterEl.appendChild(option);
             });
@@ -518,8 +595,11 @@
                 const option = document.createElement('div');
                 option.className = 'filter-option';
                 option.innerHTML = `
-                    <input type="checkbox" id="rdp-${rdp.replace(/\./g, '-')}" value="${rdp}">
-                    <label for="rdp-${rdp.replace(/\./g, '-')}">${rdp}</label>
+                    <div class="filter-option-content">
+                        <input type="checkbox" id="rdp-${rdp.replace(/\./g, '-')}" value="${rdp}" checked>
+                        <label for="rdp-${rdp.replace(/\./g, '-')}">${rdp}</label>
+                    </div>
+                    <span class="filter-option-packs">${rdpCounts[rdp]}</span>
                 `;
                 rdpFilterEl.appendChild(option);
             });
@@ -554,9 +634,9 @@
             // Apply filters
             if (selectedEntites.length === 0 && selectedRdps.length === 0) {
                 // If no filters selected, show all data
-                filteredData = [...serverData];
+                filteredData = [...packData];
             } else {
-                filteredData = serverData.filter(item => {
+                filteredData = packData.filter(item => {
                     const entiteMatch = selectedEntites.length === 0 || selectedEntites.includes(item.entite);
                     const rdpMatch = selectedRdps.length === 0 || selectedRdps.includes(item.rdp);
                     return entiteMatch && rdpMatch;
@@ -567,20 +647,61 @@
             renderTable();
             renderRdpTotals();
             updateStatus();
+            updateFilterCounts();
+        }
+        
+        // Update filter option counts based on active filters
+        function updateFilterCounts() {
+            // Count packs for each entite based on current RDP filter
+            const entiteCheckboxes = entiteFilterEl.querySelectorAll('input[type="checkbox"]');
+            entiteCheckboxes.forEach(checkbox => {
+                const entite = checkbox.value;
+                const packsCount = packData.filter(pack => {
+                    const entiteMatch = pack.entite === entite;
+                    const rdpMatch = selectedRdps.length === 0 || selectedRdps.includes(pack.rdp);
+                    return entiteMatch && rdpMatch;
+                }).length;
+                
+                const countSpan = checkbox.closest('.filter-option').querySelector('.filter-option-packs');
+                countSpan.textContent = packsCount;
+                
+                // Disable checkbox if count is 0
+                checkbox.disabled = packsCount === 0;
+                checkbox.closest('.filter-option').style.opacity = packsCount === 0 ? 0.5 : 1;
+            });
+            
+            // Count packs for each RDP based on current entite filter
+            const rdpCheckboxes = rdpFilterEl.querySelectorAll('input[type="checkbox"]');
+            rdpCheckboxes.forEach(checkbox => {
+                const rdp = checkbox.value;
+                const packsCount = packData.filter(pack => {
+                    const rdpMatch = pack.rdp === rdp;
+                    const entiteMatch = selectedEntites.length === 0 || selectedEntites.includes(pack.entite);
+                    return rdpMatch && entiteMatch;
+                }).length;
+                
+                const countSpan = checkbox.closest('.filter-option').querySelector('.filter-option-packs');
+                countSpan.textContent = packsCount;
+                
+                // Disable checkbox if count is 0
+                checkbox.disabled = packsCount === 0;
+                checkbox.closest('.filter-option').style.opacity = packsCount === 0 ? 0.5 : 1;
+            });
         }
         
         // Reset all filters
         function resetFilters() {
             selectAllFilters();
-            filteredData = [...serverData];
+            filteredData = [...packData];
             renderTable();
             renderRdpTotals();
             updateStatus();
+            updateFilterCounts();
         }
         
-        // Render the server table
+        // Render the pack table with simplified view showing changes
         function renderTable() {
-            serverTableBody.innerHTML = '';
+            packTableBody.innerHTML = '';
             
             if (filteredData.length === 0) {
                 noDataMessage.style.display = 'block';
@@ -589,29 +710,42 @@
             
             noDataMessage.style.display = 'none';
             
-            filteredData.forEach(server => {
+            filteredData.forEach(pack => {
                 const row = document.createElement('tr');
                 
+                // Calculate change
+                const okChange = pack.ok - pack.oldOk;
+                const changeClass = okChange > 0 ? 'positive' : (okChange < 0 ? 'negative' : 'neutral');
+                const changeSymbol = okChange > 0 ? '+' : '';
+                
                 // Determine platform class for styling
-                const platformClass = server.platform.toLowerCase().includes('imacros') 
+                const platformClass = pack.platform.toLowerCase().includes('imacros') 
                     ? 'platform-imacros' 
                     : 'platform-ecm_app';
                 
                 row.innerHTML = `
-                    <td>${server.entite}</td>
-                    <td>${server.packs}</td>
-                    <td>${server.rdp}</td>
-                    <td>${server.disk || '-'}</td>
-                    <td><span class="platform-tag ${platformClass}">${server.platform}</span></td>
-                    <td>${server.oldTotal.toLocaleString()}</td>
-                    <td class="count-ok">${server.oldOk.toLocaleString()}</td>
-                    <td class="count-not-ok">${server.oldNotOk.toLocaleString()}</td>
-                    <td>${server.total.toLocaleString()}</td>
-                    <td class="count-ok">${server.ok.toLocaleString()}</td>
-                    <td class="count-not-ok">${server.notOk.toLocaleString()}</td>
+                    <td>${pack.entite}</td>
+                    <td><strong>${pack.packs}</strong></td>
+                    <td>${pack.rdp}</td>
+                    <td><span class="platform-tag ${platformClass}">${pack.platform}</span></td>
+                    <td>
+                        <div>Total: ${pack.oldTotal.toLocaleString()}</div>
+                        <div class="count-ok">OK: ${pack.oldOk.toLocaleString()}</div>
+                        <div class="count-not-ok">Not OK: ${pack.oldNotOk.toLocaleString()}</div>
+                    </td>
+                    <td>
+                        <div>Total: ${pack.total.toLocaleString()}</div>
+                        <div class="count-ok">OK: ${pack.ok.toLocaleString()}</div>
+                        <div class="count-not-ok">Not OK: ${pack.notOk.toLocaleString()}</div>
+                    </td>
+                    <td>
+                        <span class="count-change ${changeClass}">
+                            ${changeSymbol}${okChange}
+                        </span>
+                    </td>
                 `;
                 
-                serverTableBody.appendChild(row);
+                packTableBody.appendChild(row);
             });
         }
         
@@ -622,16 +756,18 @@
             // Calculate totals for each RDP
             const rdpTotals = {};
             
-            filteredData.forEach(server => {
-                if (!rdpTotals[server.rdp]) {
-                    rdpTotals[server.rdp] = {
+            filteredData.forEach(pack => {
+                if (!rdpTotals[pack.rdp]) {
+                    rdpTotals[pack.rdp] = {
                         totalOk: 0,
-                        totalCount: 0
+                        totalPacks: 0,
+                        entites: new Set()
                     };
                 }
                 
-                rdpTotals[server.rdp].totalOk += server.ok;
-                rdpTotals[server.rdp].totalCount += 1;
+                rdpTotals[pack.rdp].totalOk += pack.ok;
+                rdpTotals[pack.rdp].totalPacks += 1;
+                rdpTotals[pack.rdp].entites.add(pack.entite);
             });
             
             // Sort RDPs by total OK count (descending)
@@ -643,10 +779,14 @@
             sortedRdps.forEach(rdp => {
                 const card = document.createElement('div');
                 card.className = 'rdp-total-card';
+                const entitesList = Array.from(rdpTotals[rdp].entites).join(', ');
                 card.innerHTML = `
                     <h4 title="${rdp}">${rdp}</h4>
                     <div class="count">${rdpTotals[rdp].totalOk.toLocaleString()}</div>
-                    <div class="label">Total OK count (${rdpTotals[rdp].totalCount} server${rdpTotals[rdp].totalCount !== 1 ? 's' : ''})</div>
+                    <div class="label">
+                        ${rdpTotals[rdp].totalPacks} pack${rdpTotals[rdp].totalPacks !== 1 ? 's' : ''} 
+                        from ${rdpTotals[rdp].entites.size} entit${rdpTotals[rdp].entites.size !== 1 ? 'és' : 'é'}
+                    </div>
                 `;
                 rdpTotalsEl.appendChild(card);
             });
@@ -654,14 +794,14 @@
         
         // Update status bar and filter status
         function updateStatus() {
-            totalServersEl.textContent = serverData.length.toLocaleString();
-            filteredServersEl.textContent = filteredData.length.toLocaleString();
+            totalPacksEl.textContent = packData.length.toLocaleString();
+            filteredPacksEl.textContent = filteredData.length.toLocaleString();
             
             // Update filter status text
             const entiteText = selectedEntites.length === 0 ? 'All Entités' : `${selectedEntites.length} Entit${selectedEntites.length !== 1 ? 'és' : 'é'}`;
-            const rdpText = selectedRdps.length === 0 ? 'All RDPs' : `${selectedRdps.length} RDP${selectedRdps.length !== 1 ? 's' : ''}`;
+            const rdpText = selectedRdps.length === 0 ? 'All RDP Servers' : `${selectedRdps.length} RDP Server${selectedRdps.length !== 1 ? 's' : ''}`;
             
-            filterStatusEl.textContent = `Filter: ${entiteText} | ${rdpText}`;
+            filterStatusEl.textContent = `Filtered by: ${entiteText} | ${rdpText}`;
         }
         
         // Initialize the application when DOM is loaded
